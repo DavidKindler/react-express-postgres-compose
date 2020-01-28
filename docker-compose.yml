@@ -1,0 +1,32 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:latest
+  web-todo-app:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /app/node_modules
+      - ./client:/app
+    ports:
+      - '3000:3000'
+    restart: on-failure
+    container_name: web-todo-app
+  todo-api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    ports:
+      - '3001:3001'
+    restart: on-failure
+    container_name: todo-api
+    volumes:
+      - /app/node_modules # Inside the container, don't try to override this folder, just leave as is
+      - ./server:/app # Look at the server directory and copy everything into the app folder in the container
+    environment:
+      - PGUSER=postgres
+      - PGHOST=postgres
+      - PGDATABASE=postgres
+      - PGPASSWORD=
+      - PGPORT=5432
